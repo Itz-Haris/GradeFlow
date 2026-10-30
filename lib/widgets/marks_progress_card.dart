@@ -4,6 +4,7 @@ import '../utils/app_theme.dart';
 
 /// Card displaying detailed marks breakdown for an individual assessment.
 /// Handles missing scores by displaying "N/A" with clean visual feedback.
+/// Supports dynamic styling for Light and Dark themes.
 class MarksProgressCard extends StatelessWidget {
   final String assessmentName;
   final double? score;
@@ -45,15 +46,20 @@ class MarksProgressCard extends StatelessWidget {
     final category = _getPerformanceCategory(score);
     final categoryColor = _getCategoryColor(score);
     final formattedScore = Student.formatScore(score);
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+    final pillBg = AppTheme.getPillBackground(context);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceWhite,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-        border: Border.all(color: AppTheme.borderGrey, width: 1),
-        boxShadow: AppTheme.softShadow,
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: AppTheme.getSoftShadow(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,7 +69,7 @@ class MarksProgressCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: categoryColor.withOpacity(0.12),
+                  color: categoryColor.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: categoryColor, size: 20),
@@ -75,19 +81,19 @@ class MarksProgressCard extends StatelessWidget {
                   children: [
                     Text(
                       assessmentName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryNavy,
+                        color: textPrimary,
                       ),
                     ),
                     if (subtitle != null) ...[
                       const SizedBox(height: 2),
                       Text(
                         subtitle!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppTheme.neutralGrey,
+                          color: textSecondary,
                         ),
                       ),
                     ],
@@ -98,7 +104,7 @@ class MarksProgressCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: categoryColor.withOpacity(0.12),
+                  color: categoryColor.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: categoryColor.withOpacity(0.3)),
                 ),
@@ -131,16 +137,16 @@ class MarksProgressCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
-                      color: hasScore ? AppTheme.primaryNavy : AppTheme.neutralGrey,
+                      color: hasScore ? textPrimary : textSecondary,
                     ),
                   ),
                   if (hasScore) ...[
                     Text(
                       ' / ${maxMarks.toInt()}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: AppTheme.neutralGrey,
+                        color: textSecondary,
                       ),
                     ),
                   ],
@@ -156,12 +162,12 @@ class MarksProgressCard extends StatelessWidget {
                   ),
                 )
               else
-                const Text(
+                Text(
                   'Record Missing',
                   style: TextStyle(
                     fontSize: 12,
                     fontStyle: FontStyle.italic,
-                    color: AppTheme.neutralGrey,
+                    color: textSecondary,
                   ),
                 ),
             ],
@@ -175,9 +181,9 @@ class MarksProgressCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: fraction,
               minHeight: 8,
-              backgroundColor: AppTheme.backgroundLight,
+              backgroundColor: pillBg,
               valueColor: AlwaysStoppedAnimation<Color>(
-                hasScore ? categoryColor : AppTheme.borderGrey,
+                hasScore ? categoryColor : borderColor,
               ),
             ),
           ),

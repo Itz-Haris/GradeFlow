@@ -7,6 +7,7 @@ import '../widgets/marks_progress_card.dart';
 import 'compare_screen.dart';
 
 /// Screen displaying complete academic performance breakdown for a selected student.
+/// Supports dynamic Light and Dark themes.
 class StudentDetailsScreen extends StatelessWidget {
   final Student student;
 
@@ -22,6 +23,9 @@ class StudentDetailsScreen extends StatelessWidget {
     final avg = student.averageMark;
     final highest = student.highestMark;
     final lowest = student.lowestMark;
+    final isDark = AppTheme.isDark(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
 
     // Calculate Semester delta (Sem 2 vs Sem 1)
     double? semDelta;
@@ -30,7 +34,7 @@ class StudentDetailsScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: AppTheme.getBackground(context),
       appBar: AppBar(
         title: const Text('Academic Record'),
         backgroundColor: Colors.transparent,
@@ -58,9 +62,9 @@ class StudentDetailsScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: AppTheme.headerGradient,
+                gradient: isDark ? AppTheme.darkHeaderGradient : AppTheme.headerGradient,
                 borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-                boxShadow: AppTheme.softShadow,
+                boxShadow: AppTheme.getSoftShadow(context),
               ),
               child: Row(
                 children: [
@@ -140,7 +144,7 @@ class StudentDetailsScreen extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Academic Summary Highlights (Average, Highest, Lowest, Completed)
+            // Academic Summary Highlights (Average, Highest, Lowest)
             Row(
               children: [
                 Expanded(
@@ -182,8 +186,8 @@ class StudentDetailsScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: semDelta >= 0
-                      ? AppTheme.positiveGreenBg
-                      : AppTheme.warningOrangeBg,
+                      ? (isDark ? AppTheme.positiveGreenBgDark : AppTheme.positiveGreenBg)
+                      : (isDark ? AppTheme.warningOrangeBgDark : AppTheme.warningOrangeBg),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: semDelta >= 0
@@ -210,8 +214,8 @@ class StudentDetailsScreen extends StatelessWidget {
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: semDelta >= 0
-                              ? const Color(0xFF065F46)
-                              : const Color(0xFF92400E),
+                              ? (isDark ? const Color(0xFFA7F3D0) : const Color(0xFF065F46))
+                              : (isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E)),
                         ),
                       ),
                     ),
@@ -221,18 +225,18 @@ class StudentDetailsScreen extends StatelessWidget {
               const SizedBox(height: 16),
             ],
 
-            const Text(
+            Text(
               'Assessment Breakdown',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.primaryNavy,
+                color: textPrimary,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               'Scores recorded for ${student.name} (Calculated out of ${maxMarks.toInt()})',
-              style: const TextStyle(fontSize: 12, color: AppTheme.neutralGrey),
+              style: TextStyle(fontSize: 12, color: textSecondary),
             ),
             const SizedBox(height: 12),
 
@@ -283,7 +287,7 @@ class StudentDetailsScreen extends StatelessWidget {
                 },
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
           ],
         ),
       ),
@@ -306,13 +310,17 @@ class _SummaryStatBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceWhite,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.borderGrey),
-        boxShadow: AppTheme.softShadow,
+        border: Border.all(color: borderColor),
+        boxShadow: AppTheme.getSoftShadow(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,10 +332,10 @@ class _SummaryStatBox extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
-                    color: AppTheme.neutralGrey,
+                    color: textSecondary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

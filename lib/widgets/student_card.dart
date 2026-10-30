@@ -3,6 +3,7 @@ import '../models/student.dart';
 import '../utils/app_theme.dart';
 
 /// Reusable card widget for displaying a summary of a student's academic record in lists.
+/// Supports dynamic styling for Light and Dark themes.
 class StudentCard extends StatelessWidget {
   final Student student;
   final VoidCallback onTap;
@@ -29,14 +30,19 @@ class StudentCard extends StatelessWidget {
     final avg = student.averageMark;
     final avgColor = _getScoreColor(avg);
     final avgFraction = Student.getFraction(avg, maxMarks) ?? 0.0;
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+    final pillBg = AppTheme.getPillBackground(context);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceWhite,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-        border: Border.all(color: AppTheme.borderGrey, width: 1),
-        boxShadow: AppTheme.softShadow,
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: AppTheme.getSoftShadow(context),
       ),
       child: Material(
         color: Colors.transparent,
@@ -79,10 +85,10 @@ class StudentCard extends StatelessWidget {
                         children: [
                           Text(
                             student.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryNavy,
+                              color: textPrimary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -93,7 +99,7 @@ class StudentCard extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.backgroundLight,
+                                  color: pillBg,
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
@@ -108,9 +114,9 @@ class StudentCard extends StatelessWidget {
                               const SizedBox(width: 6),
                               Text(
                                 'Sr #${student.srNo}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
-                                  color: AppTheme.neutralGrey,
+                                  color: textSecondary,
                                 ),
                               ),
                             ],
@@ -137,12 +143,12 @@ class StudentCard extends StatelessWidget {
                               color: avgColor,
                             ),
                           ),
-                          const Text(
+                          Text(
                             'Average',
                             style: TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w500,
-                              color: AppTheme.neutralGrey,
+                              color: textSecondary,
                             ),
                           ),
                         ],
@@ -152,7 +158,7 @@ class StudentCard extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 14),
-                const Divider(height: 1, color: AppTheme.borderGrey),
+                Divider(height: 1, color: borderColor),
                 const SizedBox(height: 12),
 
                 // Middle: Semester 1 & Semester 2 Chips
@@ -163,6 +169,8 @@ class StudentCard extends StatelessWidget {
                         label: 'Sem 1',
                         value: Student.formatScore(student.sem1),
                         color: _getScoreColor(student.sem1),
+                        background: pillBg,
+                        textColor: textSecondary,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -171,6 +179,8 @@ class StudentCard extends StatelessWidget {
                         label: 'Sem 2',
                         value: Student.formatScore(student.sem2),
                         color: _getScoreColor(student.sem2),
+                        background: pillBg,
+                        textColor: textSecondary,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -178,7 +188,9 @@ class StudentCard extends StatelessWidget {
                       child: _ScorePill(
                         label: 'Assessments',
                         value: '${student.availableMarksCount}/4',
-                        color: AppTheme.neutralGrey,
+                        color: textSecondary,
+                        background: pillBg,
+                        textColor: textSecondary,
                       ),
                     ),
                   ],
@@ -195,16 +207,16 @@ class StudentCard extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: avg != null ? avgFraction : 0.0,
                           minHeight: 6,
-                          backgroundColor: AppTheme.backgroundLight,
+                          backgroundColor: pillBg,
                           valueColor: AlwaysStoppedAnimation<Color>(avgColor),
                         ),
                       ),
                     ),
                     const SizedBox(width: 10),
-                    const Icon(
+                    Icon(
                       Icons.chevron_right,
                       size: 18,
-                      color: AppTheme.neutralGrey,
+                      color: textSecondary,
                     ),
                   ],
                 ),
@@ -221,11 +233,15 @@ class _ScorePill extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
+  final Color background;
+  final Color textColor;
 
   const _ScorePill({
     required this.label,
     required this.value,
     required this.color,
+    required this.background,
+    required this.textColor,
   });
 
   @override
@@ -233,7 +249,7 @@ class _ScorePill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundLight,
+        color: background,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -241,9 +257,9 @@ class _ScorePill extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
-              color: AppTheme.neutralGrey,
+              color: textColor,
               fontWeight: FontWeight.w500,
             ),
           ),

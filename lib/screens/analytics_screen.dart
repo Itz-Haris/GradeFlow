@@ -5,6 +5,7 @@ import '../utils/app_theme.dart';
 import '../widgets/performance_chart.dart';
 
 /// Dedicated Academic Analytics screen providing cohort-level insights and performance distributions.
+/// Supports dynamic Light and Dark themes.
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
 
@@ -13,7 +14,7 @@ class AnalyticsScreen extends StatefulWidget {
 }
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
-  String _selectedMetric = 'Average'; // 'Average', 'Sem 1', 'Sem 2', '10th', '12th'
+  String _selectedMetric = 'Average';
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +25,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final lowest = studentService.lowestRecordedMark;
     final withRecords = studentService.studentsWithRecordsCount;
     final cohortAvg = studentService.cohortAverage;
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+    final pillBg = AppTheme.getPillBackground(context);
 
     // Distribution
     final distribution = studentService.getPerformanceDistribution(_selectedMetric);
@@ -45,17 +51,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: AppTheme.getBackground(context),
       appBar: AppBar(
         title: const Text('Academic Analytics'),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: total == 0
-          ? const Center(
+          ? Center(
               child: Text(
                 'No student records available for analytics.',
-                style: TextStyle(color: AppTheme.neutralGrey),
+                style: TextStyle(color: textSecondary),
               ),
             )
           : SingleChildScrollView(
@@ -67,12 +73,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Cohort Performance Overview',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryNavy,
+                          color: textPrimary,
                         ),
                       ),
                       Container(
@@ -143,10 +149,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   Container(
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: AppTheme.surfaceWhite,
+                      color: surfaceColor,
                       borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-                      border: Border.all(color: AppTheme.borderGrey),
-                      boxShadow: AppTheme.softShadow,
+                      border: Border.all(color: borderColor),
+                      boxShadow: AppTheme.getSoftShadow(context),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,18 +160,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               'Semester 1 vs Semester 2 Trajectory',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryNavy,
+                                color: textPrimary,
                               ),
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: AppTheme.backgroundLight,
+                                color: pillBg,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: const Text(
@@ -180,9 +186,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        const Text(
+                        Text(
                           'Direct comparison of student performance between semesters',
-                          style: TextStyle(fontSize: 12, color: AppTheme.neutralGrey),
+                          style: TextStyle(fontSize: 12, color: textSecondary),
                         ),
                         const SizedBox(height: 16),
 
@@ -210,7 +216,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               child: _TrajectoryMetric(
                                 label: 'Maintained Level',
                                 count: equalCount,
-                                color: AppTheme.neutralGrey,
+                                color: textSecondary,
                                 icon: Icons.trending_flat,
                               ),
                             ),
@@ -226,24 +232,25 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: AppTheme.surfaceWhite,
+                      color: surfaceColor,
                       borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-                      border: Border.all(color: AppTheme.borderGrey),
+                      border: Border.all(color: borderColor),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Metric for Distribution:',
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.primaryNavy,
+                            color: textPrimary,
                           ),
                         ),
                         DropdownButton<String>(
                           value: _selectedMetric,
                           underline: const SizedBox(),
+                          dropdownColor: surfaceColor,
                           icon: const Icon(Icons.arrow_drop_down, color: AppTheme.secondaryElectric),
                           style: const TextStyle(
                             fontSize: 13,
@@ -278,7 +285,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     metricLabel: _selectedMetric,
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
@@ -301,13 +308,17 @@ class _AnalyticsKpiCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceWhite,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.borderGrey),
-        boxShadow: AppTheme.softShadow,
+        border: Border.all(color: borderColor),
+        boxShadow: AppTheme.getSoftShadow(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,10 +330,10 @@ class _AnalyticsKpiCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
-                    color: AppTheme.neutralGrey,
+                    color: textSecondary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -365,9 +376,9 @@ class _TrajectoryMetric extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.25)),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

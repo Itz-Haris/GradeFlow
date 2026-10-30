@@ -43,6 +43,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+
     final List<Widget> pages = [
       _DashboardView(
         onViewAllStudents: () => _navigateToStudents(focusSearch: false),
@@ -61,40 +64,40 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: AppTheme.surfaceWhite,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 16,
-              offset: const Offset(0, -4),
-            ),
-          ],
+          color: surfaceColor,
+          border: Border(top: BorderSide(color: borderColor, width: 0.5)),
+          boxShadow: AppTheme.getSoftShadow(context),
         ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: _onBottomNavTapped,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard_outlined),
-              activeIcon: Icon(Icons.dashboard_rounded),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.people_outline_rounded),
-              activeIcon: Icon(Icons.people_rounded),
-              label: 'Students',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.insights_outlined),
-              activeIcon: Icon(Icons.insights_rounded),
-              label: 'Analytics',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings_outlined),
-              activeIcon: Icon(Icons.settings_rounded),
-              label: 'Settings',
-            ),
-          ],
+        child: SafeArea(
+          top: false,
+          child: BottomNavigationBar(
+            backgroundColor: surfaceColor,
+            elevation: 0,
+            currentIndex: _currentIndex,
+            onTap: _onBottomNavTapped,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.dashboard_outlined),
+                activeIcon: Icon(Icons.dashboard_rounded),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.people_outline_rounded),
+                activeIcon: Icon(Icons.people_rounded),
+                label: 'Students',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.insights_outlined),
+                activeIcon: Icon(Icons.insights_rounded),
+                label: 'Analytics',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings_outlined),
+                activeIcon: Icon(Icons.settings_rounded),
+                label: 'Settings',
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -117,10 +120,15 @@ class _DashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final studentService = Provider.of<StudentService>(context);
+    final isDark = AppTheme.isDark(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+    final bgColor = AppTheme.getBackground(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: bgColor,
       body: SafeArea(
+        bottom: false,
         child: RefreshIndicator(
           onRefresh: () => studentService.fetchStudents(forceRefresh: true),
           color: AppTheme.secondaryElectric,
@@ -130,7 +138,7 @@ class _DashboardView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top Header with GradeFlow Logo, Welcome, and Refresh action
+                // Top Header with GradeFlow Logo, Title, Theme Toggle, and Refresh
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -161,13 +169,13 @@ class _DashboardView extends StatelessWidget {
                         const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               'GradeFlow',
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryNavy,
+                                color: textPrimary,
                                 letterSpacing: -0.3,
                               ),
                             ),
@@ -175,7 +183,7 @@ class _DashboardView extends StatelessWidget {
                               'Track your academic journey.',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: AppTheme.neutralGrey,
+                                color: textSecondary,
                               ),
                             ),
                           ],
@@ -183,36 +191,53 @@ class _DashboardView extends StatelessWidget {
                       ],
                     ),
 
-                    // Refresh Button / Loading State
-                    IconButton(
-                      tooltip: 'Refresh Records from Google Sheets',
-                      icon: studentService.isRefreshing
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.secondaryElectric),
-                              ),
-                            )
-                          : const Icon(Icons.refresh_rounded, color: AppTheme.primaryNavy),
-                      onPressed: () {
-                        studentService.fetchStudents(forceRefresh: true);
-                      },
+                    // Actions: Theme Mode Toggle & Refresh Button
+                    Row(
+                      children: [
+                        // Instant Theme Toggle (Sun/Moon)
+                        IconButton(
+                          tooltip: isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme',
+                          icon: Icon(
+                            isDark ? Icons.light_mode_rounded : Icons.dark_mode_outlined,
+                            color: isDark ? const Color(0xFFFBBF24) : textPrimary,
+                            size: 22,
+                          ),
+                          onPressed: () {
+                            studentService.toggleTheme();
+                          },
+                        ),
+                        // Refresh Button
+                        IconButton(
+                          tooltip: 'Refresh Records from Google Sheets',
+                          icon: studentService.isRefreshing
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(AppTheme.secondaryElectric),
+                                  ),
+                                )
+                              : Icon(Icons.refresh_rounded, color: textPrimary),
+                          onPressed: () {
+                            studentService.fetchStudents(forceRefresh: true);
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
 
                 const SizedBox(height: 16),
 
-                // Welcome Card with Greeting
+                // Welcome Card with Gradient
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
+                    gradient: isDark ? AppTheme.darkPrimaryGradient : AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-                    boxShadow: AppTheme.softShadow,
+                    boxShadow: AppTheme.getSoftShadow(context),
                   ),
                   child: Row(
                     children: [
@@ -291,7 +316,7 @@ class _DashboardView extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppTheme.criticalRedBg,
+                      color: isDark ? AppTheme.criticalRedBgDark : AppTheme.criticalRedBg,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: AppTheme.criticalRed.withOpacity(0.4)),
                     ),
@@ -315,7 +340,10 @@ class _DashboardView extends StatelessWidget {
                               const SizedBox(height: 2),
                               Text(
                                 studentService.errorMessage!,
-                                style: const TextStyle(fontSize: 12, color: Color(0xFF7F1D1D)),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark ? const Color(0xFFFCA5A5) : const Color(0xFF7F1D1D),
+                                ),
                               ),
                               const SizedBox(height: 8),
                               Row(
@@ -361,32 +389,27 @@ class _DashboardView extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Academic Overview',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryNavy,
+                        color: textPrimary,
                       ),
                     ),
                     Text(
                       'Max Marks: ${studentService.maxMarks.toInt()}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: AppTheme.neutralGrey,
+                        color: textSecondary,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
 
-                // Dynamic Statistics Cards Grid (5 key metrics):
-                // 1. Total Students
-                // 2. Average 10th Marks
-                // 3. Average 12th Marks
-                // 4. Average Semester 1 Marks
-                // 5. Average Semester 2 Marks
+                // Dynamic Statistics Cards Grid (5 key metrics)
                 LayoutBuilder(
                   builder: (context, constraints) {
                     final double cardWidth = (constraints.maxWidth - 12) / 2;
@@ -394,7 +417,7 @@ class _DashboardView extends StatelessWidget {
                       spacing: 12,
                       runSpacing: 12,
                       children: [
-                        // Card 1: Total Students (full width for emphasis)
+                        // Card 1: Total Students (full width)
                         SizedBox(
                           width: constraints.maxWidth,
                           child: StatisticsCard(
@@ -465,7 +488,7 @@ class _DashboardView extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // Academic Performance Chart (Bar chart comparing 10th, 12th, Sem 1, Sem 2)
+                // Academic Performance Chart
                 AcademicPerformanceChart(
                   avg10th: studentService.avg10th,
                   avg12th: studentService.avg12th,
@@ -477,12 +500,12 @@ class _DashboardView extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // Quick Actions Section
-                const Text(
+                Text(
                   'Quick Actions',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryNavy,
+                    color: textPrimary,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -536,7 +559,7 @@ class _DashboardView extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
               ],
             ),
           ),
@@ -561,12 +584,16 @@ class _QuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surfaceWhite,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderGrey),
-        boxShadow: AppTheme.softShadow,
+        border: Border.all(color: borderColor),
+        boxShadow: AppTheme.getSoftShadow(context),
       ),
       child: Material(
         color: Colors.transparent,
@@ -581,7 +608,7 @@ class _QuickActionButton extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.12),
+                    color: color.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(icon, color: color, size: 20),
@@ -590,10 +617,10 @@ class _QuickActionButton extends StatelessWidget {
                 Expanded(
                   child: Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryNavy,
+                      color: textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

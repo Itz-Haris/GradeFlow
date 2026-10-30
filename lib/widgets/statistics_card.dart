@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/app_theme.dart';
 
 /// Reusable modern card for presenting academic key performance indicators (KPIs).
+/// Adapts dynamically to Light and Dark themes.
 class StatisticsCard extends StatelessWidget {
   final String title;
   final String value;
@@ -22,12 +23,17 @@ class StatisticsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surfaceWhite,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-        border: Border.all(color: AppTheme.borderGrey, width: 1),
-        boxShadow: AppTheme.softShadow,
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: AppTheme.getSoftShadow(context),
       ),
       child: Material(
         color: Colors.transparent,
@@ -48,7 +54,7 @@ class StatisticsCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: accentColor.withOpacity(0.12),
+                        color: accentColor.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -71,10 +77,10 @@ class StatisticsCard extends StatelessWidget {
                 // Value
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryNavy,
+                    color: textPrimary,
                     letterSpacing: -0.5,
                   ),
                   maxLines: 1,
@@ -84,10 +90,10 @@ class StatisticsCard extends StatelessWidget {
                 // Title
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryNavy,
+                    color: textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -96,9 +102,9 @@ class StatisticsCard extends StatelessWidget {
                 // Subtitle
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppTheme.neutralGrey,
+                    color: textSecondary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

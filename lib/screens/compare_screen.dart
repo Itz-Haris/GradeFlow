@@ -5,6 +5,7 @@ import '../services/student_service.dart';
 import '../utils/app_theme.dart';
 
 /// Screen allowing users to compare two students side-by-side with automatic score highlighting.
+/// Supports dynamic Light and Dark themes.
 class CompareScreen extends StatefulWidget {
   final Student? initialStudentA;
   final Student? initialStudentB;
@@ -31,8 +32,14 @@ class _CompareScreenState extends State<CompareScreen> {
   }
 
   void _showStudentPicker(bool isPickingA, List<Student> students) {
+    final surfaceColor = AppTheme.getSurface(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final borderColor = AppTheme.getBorder(context);
+    final pillBg = AppTheme.getPillBackground(context);
+
     showModalBottomSheet(
       context: context,
+      backgroundColor: surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -45,17 +52,17 @@ class _CompareScreenState extends State<CompareScreen> {
             children: [
               Text(
                 'Select Student ${isPickingA ? 'A' : 'B'}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryNavy,
+                  color: textPrimary,
                 ),
               ),
               const SizedBox(height: 12),
               Expanded(
                 child: ListView.separated(
                   itemCount: students.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1, color: AppTheme.borderGrey),
+                  separatorBuilder: (context, index) => Divider(height: 1, color: borderColor),
                   itemBuilder: (context, index) {
                     final s = students[index];
                     final isSelected = isPickingA ? (_studentA?.rollNo == s.rollNo) : (_studentB?.rollNo == s.rollNo);
@@ -64,11 +71,11 @@ class _CompareScreenState extends State<CompareScreen> {
                     return ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       leading: CircleAvatar(
-                        backgroundColor: isSelected ? AppTheme.secondaryElectric : AppTheme.backgroundLight,
+                        backgroundColor: isSelected ? AppTheme.secondaryElectric : pillBg,
                         child: Text(
                           s.initials,
                           style: TextStyle(
-                            color: isSelected ? Colors.white : AppTheme.primaryNavy,
+                            color: isSelected ? Colors.white : textPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -77,7 +84,7 @@ class _CompareScreenState extends State<CompareScreen> {
                         s.name,
                         style: TextStyle(
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                          color: AppTheme.primaryNavy,
+                          color: textPrimary,
                         ),
                       ),
                       subtitle: Text('${s.rollNo} • Avg: ${s.averageMark != null ? '${s.averageMark!.toStringAsFixed(1)}%' : 'N/A'}'),
@@ -105,8 +112,6 @@ class _CompareScreenState extends State<CompareScreen> {
     );
   }
 
-  /// Comparison indicator helper:
-  /// Returns 1 if valA > valB, -1 if valB > valA, 0 if equal, null if cannot compare
   int? _compareValues(double? valA, double? valB) {
     if (valA == null || valB == null) return null;
     if (valA > valB) return 1;
@@ -118,6 +123,10 @@ class _CompareScreenState extends State<CompareScreen> {
   Widget build(BuildContext context) {
     final studentService = Provider.of<StudentService>(context);
     final allStudents = studentService.students;
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final isDark = AppTheme.isDark(context);
 
     // Automatically set default students if not provided and list is available
     if (_studentA == null && allStudents.isNotEmpty) {
@@ -128,7 +137,7 @@ class _CompareScreenState extends State<CompareScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: AppTheme.getBackground(context),
       appBar: AppBar(
         title: const Text('Student Comparison'),
         backgroundColor: Colors.transparent,
@@ -174,10 +183,10 @@ class _CompareScreenState extends State<CompareScreen> {
                     // Comparison Metrics Table
                     Container(
                       decoration: BoxDecoration(
-                        color: AppTheme.surfaceWhite,
+                        color: surfaceColor,
                         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-                        border: Border.all(color: AppTheme.borderGrey),
-                        boxShadow: AppTheme.softShadow,
+                        border: Border.all(color: borderColor),
+                        boxShadow: AppTheme.getSoftShadow(context),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,30 +196,30 @@ class _CompareScreenState extends State<CompareScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
+                                Text(
                                   'Assessment Comparison Table',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: AppTheme.primaryNavy,
+                                    color: textPrimary,
                                   ),
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.positiveGreenBg,
+                                    color: isDark ? AppTheme.positiveGreenBgDark : AppTheme.positiveGreenBg,
                                     borderRadius: BorderRadius.circular(6),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     children: [
-                                      Icon(Icons.check_circle, size: 12, color: AppTheme.positiveGreen),
-                                      SizedBox(width: 4),
+                                      const Icon(Icons.check_circle, size: 12, color: AppTheme.positiveGreen),
+                                      const SizedBox(width: 4),
                                       Text(
                                         'Higher highlighted',
                                         style: TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.w600,
-                                          color: Color(0xFF065F46),
+                                          color: isDark ? const Color(0xFFA7F3D0) : const Color(0xFF065F46),
                                         ),
                                       ),
                                     ],
@@ -219,7 +228,7 @@ class _CompareScreenState extends State<CompareScreen> {
                               ],
                             ),
                           ),
-                          const Divider(height: 1, color: AppTheme.borderGrey),
+                          Divider(height: 1, color: borderColor),
 
                           // Table Rows
                           _ComparisonRow(
@@ -283,7 +292,7 @@ class _CompareScreenState extends State<CompareScreen> {
                     ),
                   ],
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
@@ -306,12 +315,16 @@ class _StudentSelectorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surfaceColor = AppTheme.getSurface(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surfaceWhite,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
         border: Border.all(color: accentColor.withOpacity(0.4), width: 1.5),
-        boxShadow: AppTheme.softShadow,
+        boxShadow: AppTheme.getSoftShadow(context),
       ),
       child: Material(
         color: Colors.transparent,
@@ -336,17 +349,17 @@ class _StudentSelectorCard extends StatelessWidget {
                         letterSpacing: 0.5,
                       ),
                     ),
-                    const Icon(Icons.arrow_drop_down, color: AppTheme.neutralGrey),
+                    Icon(Icons.arrow_drop_down, color: textSecondary),
                   ],
                 ),
                 const SizedBox(height: 8),
                 if (student != null) ...[
                   Text(
                     student!.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryNavy,
+                      color: textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -354,17 +367,17 @@ class _StudentSelectorCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     student!.rollNo,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppTheme.neutralGrey,
+                      color: textSecondary,
                     ),
                   ),
                 ] else ...[
-                  const Text(
+                  Text(
                     'Select Student',
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppTheme.neutralGrey,
+                      color: textSecondary,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -382,7 +395,7 @@ class _ComparisonRow extends StatelessWidget {
   final String metric;
   final String valA;
   final String valB;
-  final int? comparisonResult; // 1 = A higher, -1 = B higher, 0 = equal, null = n/a
+  final int? comparisonResult;
   final bool isNumeric;
   final bool isHighlightTotal;
 
@@ -399,9 +412,11 @@ class _ComparisonRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool aIsHigher = comparisonResult == 1;
     final bool bIsHigher = comparisonResult == -1;
+    final pillBg = AppTheme.getPillBackground(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
 
     return Container(
-      color: isHighlightTotal ? AppTheme.backgroundLight : Colors.transparent,
+      color: isHighlightTotal ? pillBg : Colors.transparent,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
@@ -412,7 +427,7 @@ class _ComparisonRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: isHighlightTotal ? FontWeight.bold : FontWeight.w500,
-                color: AppTheme.primaryNavy,
+                color: textPrimary,
               ),
             ),
           ),
@@ -451,11 +466,15 @@ class _ValueCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppTheme.isDark(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+
     if (isWinner) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: AppTheme.positiveGreenBg,
+          color: isDark ? AppTheme.positiveGreenBgDark : AppTheme.positiveGreenBg,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(color: AppTheme.positiveGreen.withOpacity(0.3)),
         ),
@@ -465,10 +484,10 @@ class _ValueCell extends StatelessWidget {
           children: [
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF065F46),
+                color: isDark ? const Color(0xFFA7F3D0) : const Color(0xFF065F46),
               ),
             ),
             const SizedBox(width: 4),
@@ -484,7 +503,7 @@ class _ValueCell extends StatelessWidget {
       style: TextStyle(
         fontSize: 13,
         fontWeight: isHighlightTotal ? FontWeight.bold : FontWeight.normal,
-        color: value == 'N/A' ? AppTheme.neutralGrey : AppTheme.primaryNavy,
+        color: value == 'N/A' ? textSecondary : textPrimary,
       ),
     );
   }
@@ -503,6 +522,10 @@ class _ComparisonSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final avgA = studentA.averageMark;
     final avgB = studentB.averageMark;
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
 
     String conclusion = 'Both students demonstrate strong academic commitment.';
     if (avgA != null && avgB != null) {
@@ -519,10 +542,10 @@ class _ComparisonSummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceWhite,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-        border: Border.all(color: AppTheme.borderGrey),
-        boxShadow: AppTheme.softShadow,
+        border: Border.all(color: borderColor),
+        boxShadow: AppTheme.getSoftShadow(context),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -540,20 +563,20 @@ class _ComparisonSummaryCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Comparative Insight',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryNavy,
+                    color: textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   conclusion,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppTheme.neutralGrey,
+                    color: textSecondary,
                     height: 1.4,
                   ),
                 ),

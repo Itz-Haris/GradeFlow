@@ -3,6 +3,7 @@ import '../utils/app_theme.dart';
 
 /// Interactive & responsive Bar Chart comparing academic averages (10th, 12th, Sem 1, Sem 2).
 /// Built cleanly with custom rendering for maximum reliability and pixel-perfect design.
+/// Supports dynamic styling for Light and Dark themes.
 class AcademicPerformanceChart extends StatelessWidget {
   final double? avg10th;
   final double? avg12th;
@@ -23,6 +24,11 @@ class AcademicPerformanceChart extends StatelessWidget {
   Widget build(BuildContext context) {
     // Check if any data exists
     final hasData = avg10th != null || avg12th != null || avgSem1 != null || avgSem2 != null;
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+    final pillBg = AppTheme.getPillBackground(context);
 
     if (!hasData) {
       return Container(
@@ -30,28 +36,28 @@ class AcademicPerformanceChart extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceWhite,
+          color: surfaceColor,
           borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-          border: Border.all(color: AppTheme.borderGrey, width: 1),
+          border: Border.all(color: borderColor, width: 1),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.bar_chart_rounded, size: 48, color: AppTheme.neutralGrey),
-            SizedBox(height: 12),
+          children: [
+            Icon(Icons.bar_chart_rounded, size: 48, color: textSecondary),
+            const SizedBox(height: 12),
             Text(
               'No Academic Records Available',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 15,
-                color: AppTheme.primaryNavy,
+                color: textPrimary,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Synchronize Google Sheets or switch to Demo Mode to view performance charts.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: AppTheme.neutralGrey),
+              style: TextStyle(fontSize: 12, color: textSecondary),
             ),
           ],
         ),
@@ -88,10 +94,10 @@ class AcademicPerformanceChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceWhite,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-        border: Border.all(color: AppTheme.borderGrey, width: 1),
-        boxShadow: AppTheme.softShadow,
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: AppTheme.getSoftShadow(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,20 +108,20 @@ class AcademicPerformanceChart extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Cohort Assessment Comparison',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryNavy,
+                      color: textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     'Average score progression across all students (Max: ${maxMarks.toInt()})',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppTheme.neutralGrey,
+                      color: textSecondary,
                     ),
                   ),
                 ],
@@ -123,7 +129,7 @@ class AcademicPerformanceChart extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.backgroundLight,
+                  color: pillBg,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Row(
@@ -170,7 +176,7 @@ class AcademicPerformanceChart extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: bar.value != null ? AppTheme.primaryNavy : AppTheme.neutralGrey,
+                            color: bar.value != null ? textPrimary : textSecondary,
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -190,7 +196,7 @@ class AcademicPerformanceChart extends StatelessWidget {
                                     end: Alignment.topCenter,
                                   )
                                 : null,
-                            color: bar.value == null ? AppTheme.borderGrey : null,
+                            color: bar.value == null ? borderColor : null,
                             borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(8),
                               bottom: Radius.circular(4),
@@ -211,10 +217,10 @@ class AcademicPerformanceChart extends StatelessWidget {
                         // X-axis label
                         Text(
                           bar.shortLabel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.primaryNavy,
+                            color: textPrimary,
                           ),
                         ),
                       ],
@@ -226,7 +232,7 @@ class AcademicPerformanceChart extends StatelessWidget {
           ),
 
           const SizedBox(height: 14),
-          const Divider(height: 1, color: AppTheme.borderGrey),
+          Divider(height: 1, color: borderColor),
           const SizedBox(height: 12),
 
           // Pass Benchmark Legend
@@ -242,9 +248,9 @@ class AcademicPerformanceChart extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              const Text(
-                'Min. Pass Benchmark: 40% (40.0)',
-                style: TextStyle(fontSize: 11, color: AppTheme.neutralGrey),
+              Text(
+                'Min. Pass: 40%',
+                style: TextStyle(fontSize: 11, color: textSecondary),
               ),
               const SizedBox(width: 16),
               Container(
@@ -256,9 +262,9 @@ class AcademicPerformanceChart extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              const Text(
-                'First Class: >=60% (60.0)',
-                style: TextStyle(fontSize: 11, color: AppTheme.neutralGrey),
+              Text(
+                'First Class: >=60%',
+                style: TextStyle(fontSize: 11, color: textSecondary),
               ),
             ],
           ),
@@ -327,13 +333,19 @@ class DistributionBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+    final pillBg = AppTheme.getPillBackground(context);
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceWhite,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-        border: Border.all(color: AppTheme.borderGrey, width: 1),
-        boxShadow: AppTheme.softShadow,
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: AppTheme.getSoftShadow(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,35 +353,35 @@ class DistributionBarChart extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Performance Distribution',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryNavy,
+                  color: textPrimary,
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppTheme.backgroundLight,
+                  color: pillBg,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   'Metric: $metricLabel',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryNavy,
+                    color: textPrimary,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Number and proportion of students categorized by marks tier',
-            style: TextStyle(fontSize: 12, color: AppTheme.neutralGrey),
+            style: TextStyle(fontSize: 12, color: textSecondary),
           ),
           const SizedBox(height: 20),
 
@@ -402,18 +414,18 @@ class DistributionBarChart extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             '$range marks',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.primaryNavy,
+                              color: textPrimary,
                             ),
                           ),
                           const SizedBox(width: 6),
                           Text(
                             '($title)',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
-                              color: AppTheme.neutralGrey,
+                              color: textSecondary,
                             ),
                           ),
                         ],
@@ -434,7 +446,7 @@ class DistributionBarChart extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: pct,
                       minHeight: 10,
-                      backgroundColor: AppTheme.backgroundLight,
+                      backgroundColor: pillBg,
                       valueColor: AlwaysStoppedAnimation<Color>(color),
                     ),
                   ),

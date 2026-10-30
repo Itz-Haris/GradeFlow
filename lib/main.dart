@@ -8,20 +8,13 @@ import 'utils/app_theme.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Set system UI overlay style to match modern GradeFlow aesthetic
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.white,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ),
-  );
+  // Enable true edge-to-edge full-screen display (removes black letterboxing bars)
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   runApp(const GradeFlowApp());
 }
 
-/// Root widget of the GradeFlow application.
+/// Root widget of the GradeFlow application with dynamic ThemeMode support.
 class GradeFlowApp extends StatelessWidget {
   const GradeFlowApp({super.key});
 
@@ -29,11 +22,36 @@ class GradeFlowApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<StudentService>(
       create: (_) => StudentService(),
-      child: MaterialApp(
-        title: 'GradeFlow',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        home: const SplashScreen(),
+      child: Consumer<StudentService>(
+        builder: (context, studentService, child) {
+          // Check if dark theme is currently effective
+          final isDarkEffective = studentService.themeMode == ThemeMode.dark ||
+              (studentService.themeMode == ThemeMode.system &&
+                  MediaQuery.platformBrightnessOf(context) == Brightness.dark);
+
+          final overlayStyle = SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: isDarkEffective ? Brightness.light : Brightness.dark,
+            statusBarBrightness: isDarkEffective ? Brightness.dark : Brightness.light,
+            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarDividerColor: Colors.transparent,
+            systemNavigationBarIconBrightness: isDarkEffective ? Brightness.light : Brightness.dark,
+            systemNavigationBarContrastEnforced: false,
+            systemStatusBarContrastEnforced: false,
+          );
+
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: overlayStyle,
+            child: MaterialApp(
+              title: 'GradeFlow',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: studentService.themeMode,
+              home: const SplashScreen(),
+            ),
+          );
+        },
       ),
     );
   }

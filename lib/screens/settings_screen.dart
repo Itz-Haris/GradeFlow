@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../services/student_service.dart';
 import '../utils/app_theme.dart';
 
-/// Settings screen for API configuration, Demo Mode toggle, max marks settings,
-/// Google Sheets integration instructions, and college practical metadata.
+/// Settings screen for API configuration, Theme selection, Demo Mode toggle,
+/// max marks settings, Google Sheets integration guide, and college practical metadata.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -13,30 +13,38 @@ class SettingsScreen extends StatelessWidget {
     final controller = TextEditingController(
       text: service.activeApiUrl == googleSheetsApiUrl ? '' : service.activeApiUrl,
     );
+    final surfaceColor = AppTheme.getSurface(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: surfaceColor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text('Configure Google Apps Script API'),
+          title: Text(
+            'Configure Google Apps Script API',
+            style: TextStyle(color: textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Paste your deployed Google Apps Script Web App URL below:',
-                style: TextStyle(fontSize: 13, color: AppTheme.neutralGrey),
+                style: TextStyle(fontSize: 13, color: textSecondary),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: controller,
                 maxLines: 2,
+                style: TextStyle(color: textPrimary, fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'https://script.google.com/macros/s/.../exec',
-                  hintStyle: const TextStyle(fontSize: 12),
+                  hintStyle: TextStyle(fontSize: 12, color: textSecondary),
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.paste, size: 20),
+                    icon: Icon(Icons.paste, size: 20, color: textSecondary),
                     onPressed: () async {
                       final data = await Clipboard.getData(Clipboard.kTextPlain);
                       if (data?.text != null) {
@@ -75,27 +83,35 @@ class SettingsScreen extends StatelessWidget {
 
   void _showMaxMarksDialog(BuildContext context, StudentService service) {
     final controller = TextEditingController(text: service.maxMarks.toInt().toString());
+    final surfaceColor = AppTheme.getSurface(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: surfaceColor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text('Configure Maximum Marks'),
+          title: Text(
+            'Configure Maximum Marks',
+            style: TextStyle(color: textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Enter the benchmark total marks for assessments (e.g. 100, 75, or 50):',
-                style: TextStyle(fontSize: 13, color: AppTheme.neutralGrey),
+              Text(
+                'Enter the benchmark total marks or GPA scale (e.g. 100, 75, 50, or 10):',
+                style: TextStyle(fontSize: 13, color: textSecondary),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: controller,
                 keyboardType: TextInputType.number,
+                style: TextStyle(color: textPrimary),
                 decoration: const InputDecoration(
-                  labelText: 'Maximum Marks',
+                  labelText: 'Maximum Marks / Scale',
                   hintText: '100',
                 ),
               ),
@@ -123,9 +139,14 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showSetupGuideModal(BuildContext context) {
+    final surfaceColor = AppTheme.getSurface(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -146,24 +167,24 @@ class SettingsScreen extends StatelessWidget {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppTheme.borderGrey,
+                        color: AppTheme.getBorder(context),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     'Google Sheets Integration Guide',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryNavy,
+                      color: textPrimary,
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
+                  Text(
                     'Follow these 7 steps to connect your own Google Sheet to GradeFlow:',
-                    style: TextStyle(fontSize: 13, color: AppTheme.neutralGrey),
+                    style: TextStyle(fontSize: 13, color: textSecondary),
                   ),
                   const SizedBox(height: 16),
 
@@ -221,11 +242,15 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final studentService = Provider.of<StudentService>(context);
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
     final isConfigured = studentService.activeApiUrl != googleSheetsApiUrl &&
         studentService.activeApiUrl.isNotEmpty;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: AppTheme.getBackground(context),
       appBar: AppBar(
         title: const Text('Settings & Info'),
         backgroundColor: Colors.transparent,
@@ -236,15 +261,88 @@ class SettingsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Section 1: Academic Practical Information
+            // Section 1: Appearance & Themes (Dark / Light)
+            _SettingsSectionTitle(title: 'Appearance & Theme'),
+            Container(
+              decoration: BoxDecoration(
+                color: surfaceColor,
+                borderRadius: BorderRadius.circular(AppTheme.cardRadius),
+                border: Border.all(color: borderColor),
+                boxShadow: AppTheme.getSoftShadow(context),
+              ),
+              child: Column(
+                children: [
+                  RadioListTile<ThemeMode>(
+                    title: Text('Light Mode', style: TextStyle(fontWeight: FontWeight.w600, color: textPrimary)),
+                    subtitle: Text('Classic clean white & navy palette', style: TextStyle(fontSize: 12, color: textSecondary)),
+                    secondary: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF59E0B).withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.light_mode_outlined, color: Color(0xFFF59E0B)),
+                    ),
+                    value: ThemeMode.light,
+                    groupValue: studentService.themeMode,
+                    activeColor: AppTheme.secondaryElectric,
+                    onChanged: (val) {
+                      if (val != null) studentService.setThemeMode(val);
+                    },
+                  ),
+                  Divider(height: 1, color: borderColor),
+                  RadioListTile<ThemeMode>(
+                    title: Text('Dark Mode', style: TextStyle(fontWeight: FontWeight.w600, color: textPrimary)),
+                    subtitle: Text('Obsidian navy & electric blue palette', style: TextStyle(fontSize: 12, color: textSecondary)),
+                    secondary: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.secondaryElectric.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.dark_mode_outlined, color: AppTheme.secondaryElectric),
+                    ),
+                    value: ThemeMode.dark,
+                    groupValue: studentService.themeMode,
+                    activeColor: AppTheme.secondaryElectric,
+                    onChanged: (val) {
+                      if (val != null) studentService.setThemeMode(val);
+                    },
+                  ),
+                  Divider(height: 1, color: borderColor),
+                  RadioListTile<ThemeMode>(
+                    title: Text('System Default', style: TextStyle(fontWeight: FontWeight.w600, color: textPrimary)),
+                    subtitle: Text('Follows phone system appearance settings', style: TextStyle(fontSize: 12, color: textSecondary)),
+                    secondary: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.accentCyan.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.brightness_auto_outlined, color: AppTheme.accentCyan),
+                    ),
+                    value: ThemeMode.system,
+                    groupValue: studentService.themeMode,
+                    activeColor: AppTheme.secondaryElectric,
+                    onChanged: (val) {
+                      if (val != null) studentService.setThemeMode(val);
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Section 2: Academic Practical Information
             _SettingsSectionTitle(title: 'Practical Information'),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.surfaceWhite,
+                color: surfaceColor,
                 borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-                border: Border.all(color: AppTheme.borderGrey),
-                boxShadow: AppTheme.softShadow,
+                border: Border.all(color: borderColor),
+                boxShadow: AppTheme.getSoftShadow(context),
               ),
               child: Column(
                 children: [
@@ -260,14 +358,14 @@ class SettingsScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Section 2: Data Source & API Status
+            // Section 3: Data Source & API Status
             _SettingsSectionTitle(title: 'Google Sheets Integration'),
             Container(
               decoration: BoxDecoration(
-                color: AppTheme.surfaceWhite,
+                color: surfaceColor,
                 borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-                border: Border.all(color: AppTheme.borderGrey),
-                boxShadow: AppTheme.softShadow,
+                border: Border.all(color: borderColor),
+                boxShadow: AppTheme.getSoftShadow(context),
               ),
               child: Column(
                 children: [
@@ -295,7 +393,7 @@ class SettingsScreen extends StatelessWidget {
                       studentService.isDemoMode
                           ? 'Demo Mode Active'
                           : (isConfigured ? 'Live Sheets API Connected' : 'API Unconfigured'),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textPrimary),
                     ),
                     subtitle: Text(
                       studentService.isDemoMode
@@ -303,23 +401,23 @@ class SettingsScreen extends StatelessWidget {
                           : (isConfigured
                               ? 'Endpoint configured. Tap to modify.'
                               : 'Tap to configure Apps Script Web App URL'),
-                      style: const TextStyle(fontSize: 12, color: AppTheme.neutralGrey),
+                      style: TextStyle(fontSize: 12, color: textSecondary),
                     ),
-                    trailing: const Icon(Icons.chevron_right, color: AppTheme.neutralGrey),
+                    trailing: Icon(Icons.chevron_right, color: textSecondary),
                     onTap: () => _showApiUrlDialog(context, studentService),
                   ),
 
-                  const Divider(height: 1, color: AppTheme.borderGrey),
+                  Divider(height: 1, color: borderColor),
 
                   // Demo Mode Toggle Switch
                   SwitchListTile(
-                    title: const Text(
+                    title: Text(
                       'Demo Mode',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: textPrimary),
                     ),
-                    subtitle: const Text(
+                    subtitle: Text(
                       'Use offline mock dataset for college viva demonstration',
-                      style: TextStyle(fontSize: 12, color: AppTheme.neutralGrey),
+                      style: TextStyle(fontSize: 12, color: textSecondary),
                     ),
                     activeColor: AppTheme.secondaryElectric,
                     value: studentService.isDemoMode,
@@ -328,7 +426,7 @@ class SettingsScreen extends StatelessWidget {
                     },
                   ),
 
-                  const Divider(height: 1, color: AppTheme.borderGrey),
+                  Divider(height: 1, color: borderColor),
 
                   // Step-by-Step Setup Guide
                   ListTile(
@@ -340,15 +438,15 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       child: const Icon(Icons.menu_book_outlined, color: AppTheme.secondaryElectric),
                     ),
-                    title: const Text(
+                    title: Text(
                       'Connection Instructions',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: textPrimary),
                     ),
-                    subtitle: const Text(
+                    subtitle: Text(
                       'Step-by-step tutorial to create Apps Script Web App',
-                      style: TextStyle(fontSize: 12, color: AppTheme.neutralGrey),
+                      style: TextStyle(fontSize: 12, color: textSecondary),
                     ),
-                    trailing: const Icon(Icons.chevron_right, color: AppTheme.neutralGrey),
+                    trailing: Icon(Icons.chevron_right, color: textSecondary),
                     onTap: () => _showSetupGuideModal(context),
                   ),
                 ],
@@ -357,14 +455,14 @@ class SettingsScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Section 3: Academic Preferences
+            // Section 4: Academic Preferences (Max Marks / Scale)
             _SettingsSectionTitle(title: 'Academic Preferences'),
             Container(
               decoration: BoxDecoration(
-                color: AppTheme.surfaceWhite,
+                color: surfaceColor,
                 borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-                border: Border.all(color: AppTheme.borderGrey),
-                boxShadow: AppTheme.softShadow,
+                border: Border.all(color: borderColor),
+                boxShadow: AppTheme.getSoftShadow(context),
               ),
               child: ListTile(
                 leading: Container(
@@ -375,13 +473,13 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   child: const Icon(Icons.tune, color: AppTheme.secondaryElectric),
                 ),
-                title: const Text(
-                  'Maximum Assessment Marks',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                title: Text(
+                  'Maximum Assessment Marks / Scale',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: textPrimary),
                 ),
                 subtitle: Text(
-                  'Currently set to ${studentService.maxMarks.toInt()} marks',
-                  style: const TextStyle(fontSize: 12, color: AppTheme.neutralGrey),
+                  'Currently set to ${studentService.maxMarks.toInt()} (change to 10 for CGPA/GPA)',
+                  style: TextStyle(fontSize: 12, color: textSecondary),
                 ),
                 trailing: Text(
                   '${studentService.maxMarks.toInt()}',
@@ -397,34 +495,34 @@ class SettingsScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Section 4: Privacy & Security
+            // Section 5: Privacy & Security
             _SettingsSectionTitle(title: 'Privacy & Security Notice'),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.surfaceWhite,
+                color: surfaceColor,
                 borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-                border: Border.all(color: AppTheme.borderGrey),
-                boxShadow: AppTheme.softShadow,
+                border: Border.all(color: borderColor),
+                boxShadow: AppTheme.getSoftShadow(context),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Icon(Icons.shield_outlined, color: AppTheme.secondaryElectric, size: 22),
-                  SizedBox(width: 12),
+                children: [
+                  const Icon(Icons.shield_outlined, color: AppTheme.secondaryElectric, size: 22),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'GradeFlow communicates directly with your Google Sheets endpoint via HTTPS. '
                       'No student data is routed through third-party analytics or external trackers. '
                       'Always use fictitious data for public viva demonstrations.',
-                      style: TextStyle(fontSize: 12, color: AppTheme.neutralGrey, height: 1.4),
+                      style: TextStyle(fontSize: 12, color: textSecondary, height: 1.4),
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
           ],
         ),
       ),
@@ -462,18 +560,21 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 13, color: AppTheme.neutralGrey)),
+          Text(label, style: TextStyle(fontSize: 13, color: textSecondary)),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: AppTheme.primaryNavy,
+              color: textPrimary,
             ),
           ),
         ],
@@ -495,6 +596,9 @@ class _GuideStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
@@ -515,16 +619,16 @@ class _GuideStep extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryNavy,
+                    color: textPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   desc,
-                  style: const TextStyle(fontSize: 12, color: AppTheme.neutralGrey, height: 1.4),
+                  style: TextStyle(fontSize: 12, color: textSecondary, height: 1.4),
                 ),
               ],
             ),

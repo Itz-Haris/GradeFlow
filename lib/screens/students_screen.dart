@@ -23,6 +23,7 @@ enum SortOption {
 }
 
 /// Dedicated Student Directory screen with instant search and comprehensive sorting.
+/// Supports dynamic Light and Dark themes.
 class StudentsScreen extends StatefulWidget {
   final bool autoFocusSearch;
 
@@ -129,8 +130,12 @@ class _StudentsScreenState extends State<StudentsScreen> {
   }
 
   void _showSortModal() {
+    final surfaceColor = AppTheme.getSurface(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+
     showModalBottomSheet(
       context: context,
+      backgroundColor: surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -144,16 +149,16 @@ class _StudentsScreenState extends State<StudentsScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Sort Directory By',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryNavy,
+                      color: textPrimary,
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: Icon(Icons.close, color: textPrimary),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -170,7 +175,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? AppTheme.secondaryElectric : AppTheme.primaryNavy,
+                          color: isSelected ? AppTheme.secondaryElectric : textPrimary,
                         ),
                       ),
                       trailing: isSelected
@@ -197,28 +202,36 @@ class _StudentsScreenState extends State<StudentsScreen> {
   Widget build(BuildContext context) {
     final studentService = Provider.of<StudentService>(context);
     final displayedStudents = _getFilteredAndSortedStudents(studentService.students);
+    final surfaceColor = AppTheme.getSurface(context);
+    final borderColor = AppTheme.getBorder(context);
+    final textPrimary = AppTheme.getTextPrimary(context);
+    final textSecondary = AppTheme.getTextSecondary(context);
+    final pillBg = AppTheme.getPillBackground(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: AppTheme.getBackground(context),
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             // Top App Bar / Search Header
             Container(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              color: AppTheme.surfaceWhite,
+              color: surfaceColor,
               child: Column(
                 children: [
                   // Search TextField
                   TextField(
                     controller: _searchController,
                     focusNode: _searchFocus,
+                    style: TextStyle(color: textPrimary),
                     decoration: InputDecoration(
                       hintText: 'Search by student name or roll no...',
+                      hintStyle: TextStyle(color: textSecondary),
                       prefixIcon: const Icon(Icons.search, color: AppTheme.secondaryElectric),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear, color: AppTheme.neutralGrey),
+                              icon: Icon(Icons.clear, color: textSecondary),
                               onPressed: () {
                                 _searchController.clear();
                                 setState(() {
@@ -243,10 +256,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     children: [
                       Text(
                         'Showing ${displayedStudents.length} of ${studentService.totalStudents} student${studentService.totalStudents == 1 ? '' : 's'}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: AppTheme.neutralGrey,
+                          color: textSecondary,
                         ),
                       ),
                       InkWell(
@@ -255,9 +268,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppTheme.backgroundLight,
+                            color: pillBg,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppTheme.borderGrey),
+                            border: Border.all(color: borderColor),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -266,10 +279,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
                               const SizedBox(width: 6),
                               Text(
                                 _getSortLabel(_activeSort),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: AppTheme.primaryNavy,
+                                  color: textPrimary,
                                 ),
                               ),
                             ],
@@ -289,10 +302,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 color: AppTheme.warningOrangeBg,
                 child: Row(
-                  children: [
-                    const Icon(Icons.info_outline, size: 14, color: Color(0xFF92400E)),
-                    const SizedBox(width: 8),
-                    const Expanded(
+                  children: const [
+                    Icon(Icons.info_outline, size: 14, color: Color(0xFF92400E)),
+                    SizedBox(width: 8),
+                    Expanded(
                       child: Text(
                         'DEMO DATA: Showing sample department records. Configure API in Settings.',
                         style: TextStyle(
@@ -324,17 +337,17 @@ class _StudentsScreenState extends State<StudentsScreen> {
                                   Icon(
                                     _searchQuery.isNotEmpty ? Icons.search_off : Icons.school_outlined,
                                     size: 54,
-                                    color: AppTheme.neutralGrey.withOpacity(0.5),
+                                    color: textSecondary.withOpacity(0.5),
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
                                     _searchQuery.isNotEmpty
                                         ? 'No matching students found'
                                         : 'No student records available',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: AppTheme.primaryNavy,
+                                      color: textPrimary,
                                     ),
                                   ),
                                   const SizedBox(height: 6),
@@ -343,9 +356,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
                                         ? 'No records match "$_searchQuery". Try checking roll number or spelling.'
                                         : 'Check your Google Sheets API connection or pull to refresh.',
                                     textAlign: TextAlign.center,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 13,
-                                      color: AppTheme.neutralGrey,
+                                      color: textSecondary,
                                     ),
                                   ),
                                   if (_searchQuery.isNotEmpty) ...[

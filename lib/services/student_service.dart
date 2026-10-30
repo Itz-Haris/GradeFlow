@@ -30,11 +30,13 @@ class StudentService extends ChangeNotifier {
   String _activeApiUrl = googleSheetsApiUrl;
   double _maxMarks = 100.0;
   DateTime? _lastSyncTime;
+  ThemeMode _themeMode = ThemeMode.light;
 
   // Persistence keys
   static const String _prefKeyApiUrl = 'gradeflow_api_url';
   static const String _prefKeyDemoMode = 'gradeflow_demo_mode';
   static const String _prefKeyMaxMarks = 'gradeflow_max_marks';
+  static const String _prefKeyThemeMode = 'gradeflow_theme_mode';
 
   // Request timeout duration
   static const Duration _timeoutDuration = Duration(seconds: 15);
@@ -49,9 +51,30 @@ class StudentService extends ChangeNotifier {
   double get maxMarks => _maxMarks;
   DateTime? get lastSyncTime => _lastSyncTime;
   bool get hasData => _students.isNotEmpty;
+  ThemeMode get themeMode => _themeMode;
+  bool get isDarkMode => _themeMode == ThemeMode.dark;
 
   StudentService() {
     _initializePreferencesAndLoad();
+  }
+
+  /// Sets the application theme mode (light, dark, system)
+  Future<void> setThemeMode(ThemeMode mode) async {
+    _themeMode = mode;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_prefKeyThemeMode, mode.name);
+    } catch (_) {}
+  }
+
+  /// Toggles between Light and Dark mode
+  Future<void> toggleTheme() async {
+    if (_themeMode == ThemeMode.dark) {
+      await setThemeMode(ThemeMode.light);
+    } else {
+      await setThemeMode(ThemeMode.dark);
+    }
   }
 
   /// Loads saved preferences and initializes dataset
@@ -61,6 +84,14 @@ class StudentService extends ChangeNotifier {
       _activeApiUrl = prefs.getString(_prefKeyApiUrl) ?? googleSheetsApiUrl;
       _isDemoMode = prefs.getBool(_prefKeyDemoMode) ?? true;
       _maxMarks = prefs.getDouble(_prefKeyMaxMarks) ?? 100.0;
+      final savedTheme = prefs.getString(_prefKeyThemeMode);
+      if (savedTheme == 'dark') {
+        _themeMode = ThemeMode.dark;
+      } else if (savedTheme == 'system') {
+        _themeMode = ThemeMode.system;
+      } else {
+        _themeMode = ThemeMode.light;
+      }
     } catch (e) {
       debugPrint('SharedPreferences init note: $e');
     }
