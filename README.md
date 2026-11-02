@@ -216,9 +216,8 @@ GradeFlow requires internet access to synchronize with Google Sheets. This is co
 
 ## 10. Practical Assignment Credits
 
-- **Student / Author:** Haris
+- **Student / Author:** Haris Tamboli
 - **Academic Year:** 2026
-- **Subject:** Digital Literacy and Application (DL&A)
+- **Subject:** Digital Literacy and Application (OE)
 - **Unit / Activity:** Unit 6, Activity 6
 - **Department:** Robotics and Automation
-- **Institution:** Engineering College Practical Examination
